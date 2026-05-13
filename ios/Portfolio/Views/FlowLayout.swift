@@ -3,50 +3,62 @@
 //  Portfolio
 //
 //  Lightweight wrapping HStack — used for skill/tech chip clouds.
-//  Uses SwiftUI's `Layout` protocol; no view bridging, very cheap.
 //
 
 import SwiftUI
 
-struct FlowLayout: Layout {
+struct FlowLayout<Content: View>: View {
     var spacing: CGFloat = 8
+    @ViewBuilder let content: () -> Content
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let maxWidth = proposal.width ?? .infinity
-        var totalHeight: CGFloat = 0
-        var rowWidth: CGFloat = 0
-        var rowHeight: CGFloat = 0
+    @State private var totalHeight: CGFloat = .zero
 
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if rowWidth + size.width > maxWidth {
-                totalHeight += rowHeight + spacing
-                rowWidth = size.width + spacing
-                rowHeight = size.height
-            } else {
-                rowWidth += size.width + spacing
-                rowHeight = max(rowHeight, size.height)
-            }
+    var body: some View {
+        GeometryReader { geometry in
+            generateContent(in: geometry)
         }
-        totalHeight += rowHeight
-        return CGSize(width: maxWidth, height: totalHeight)
+        .frame(height: totalHeight)
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        var x = bounds.minX
-        var y = bounds.minY
-        var rowHeight: CGFloat = 0
+    private func generateContent(in geometry: GeometryProxy) -> some View {
+        var width: CGFloat = .zero
+        var height: CGFloat = .zero
 
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if x + size.width > bounds.maxX {
-                x = bounds.minX
-                y += rowHeight + spacing
-                rowHeight = 0
-            }
-            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
-            x += size.width + spacing
-            rowHeight = max(rowHeight, size.height)
+        return ZStack(alignment: .topLeading) {
+            content()
+                .padding(.trailing, spacing)
+                .padding(.bottom, spacing)
+                .alignmentGuide(.leading) { dimension in
+                    if abs(width - dimension.width) > geometry.size.width {
+                        width = 0
+                        height -= dimension.height
+                    }
+
+                    let result = width
+                    width -= dimension.width
+                    return result
+                }
+                .alignmentGuide(.top) { dimension in
+                    let result = height
+                    return result
+                }
         }
+        .background(heightReader($totalHeight))
+    }
+
+    private func heightReader(_ binding: Binding<CGFloat>) -> some View {
+        GeometryReader { geometry in
+            Color.clear
+                .preference(key: FlowLayoutHeightPreferenceKey.self, value: geometry.size.height)
+        }
+        .onPreferenceChange(FlowLayoutHeightPreferenceKey.self) { binding.wrappedValue = $0 }
+    }
+}
+
+private struct FlowLayoutHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = .zero
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
