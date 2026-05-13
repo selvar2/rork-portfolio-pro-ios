@@ -44,7 +44,6 @@ struct ContactSheet: View {
             .padding(.horizontal, Theme.hPadding)
             .padding(.top, 12)
         }
-        .scrollIndicators(.hidden)
     }
 }
 
