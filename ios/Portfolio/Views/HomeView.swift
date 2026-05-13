@@ -50,7 +50,6 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, Theme.hPadding)
             }
-            .scrollIndicators(.hidden)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
