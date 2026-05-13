@@ -82,7 +82,6 @@ struct ProjectDetailView: View {
                     Spacer().frame(height: 24)
                 }
             }
-            .scrollIndicators(.hidden)
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
