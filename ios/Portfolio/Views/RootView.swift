@@ -6,21 +6,31 @@
 import SwiftUI
 
 struct RootView: View {
-    @State private var path: [Project] = []
     @State private var showContact = false
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationView {
             HomeView(showContact: $showContact)
-                .navigationDestination(for: Project.self) { project in
-                    ProjectDetailView(project: project)
-                }
         }
+        .navigationViewStyle(.stack)
         .sheet(isPresented: $showContact) {
+            contactSheet
+        }
+    }
+
+    @ViewBuilder
+    private var contactSheet: some View {
+        if #available(iOS 16.4, *) {
             ContactSheet()
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
                 .presentationBackground(Theme.background)
+        } else if #available(iOS 16.0, *) {
+            ContactSheet()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        } else {
+            ContactSheet()
         }
     }
 }
