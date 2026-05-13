@@ -53,7 +53,7 @@ struct HomeView: View {
             .scrollIndicators(.hidden)
         }
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 HStack(spacing: 8) {
                     Circle()
                         .fill(Theme.accent)
@@ -63,7 +63,7 @@ struct HomeView: View {
                         .foregroundStyle(Theme.textPrimary)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     showContact = true
                 } label: {
@@ -82,8 +82,6 @@ struct HomeView: View {
                 .buttonStyle(PressableStyle())
             }
         }
-        .toolbarBackground(Theme.background, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
         .onAppear { appeared = true }
     }
 }
