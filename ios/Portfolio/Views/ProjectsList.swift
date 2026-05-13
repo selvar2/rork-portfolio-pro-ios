@@ -12,7 +12,7 @@ struct ProjectsList: View {
         // LazyVStack keeps memory low — cells materialize on demand.
         LazyVStack(spacing: 14) {
             ForEach(Array(projects.enumerated()), id: \.element.id) { index, project in
-                NavigationLink(value: project) {
+                NavigationLink(destination: ProjectDetailView(project: project)) {
                     ProjectCard(project: project, index: index + 1)
                 }
                 .buttonStyle(PressableStyle())
@@ -72,7 +72,6 @@ struct ProjectCard: View {
                     }
                 }
             }
-            .contentMargins(.horizontal, 0)
 
             HStack {
                 Text("View case study")
